@@ -11,7 +11,9 @@ CREDIT_FEATURES: tuple[CreditFeature, ...] = ("browser", "agent")
 CREDIT_POLICIES: tuple[CreditPolicy, ...] = ("deny", "request", "allow")
 # 'request' is inert until browser.cloud_provider is tinyfish, and still
 # routes each session through Hermes approval once it is.
-DEFAULT_CREDIT_POLICY: CreditPolicy = "request"
+# blizzardbase pin: deny by default, so a missing, malformed or unloadable
+# config fails closed (Codex audit 2026-10-17, finding 2).
+DEFAULT_CREDIT_POLICY: CreditPolicy = "deny"
 
 SearchOptions = dict[str, Any]
 FetchOptions = dict[str, Any]

@@ -7,6 +7,7 @@ import time
 from typing import Any
 
 from . import rest_client
+from .config import credit_policy
 from .provider import MISSING_KEY_ERROR, _api_key, _is_interrupted
 
 TERMINAL_STATUSES = frozenset({"COMPLETED", "FAILED", "CANCELLED"})
@@ -76,6 +77,10 @@ def tinyfish_agent(args: dict[str, Any], **_: Any) -> str:
     api_key = _api_key()
     if not api_key:
         return json.dumps({"error": MISSING_KEY_ERROR})
+    # blizzardbase pin: the handler enforces deny itself and never relies on the
+    # pre_tool_call hook alone (Codex audit 2026-10-17, finding 1).
+    if credit_policy("agent") == "deny":
+        return json.dumps({"error": "tinyfish_agent is disabled by credit_policy.agent: deny"})
     url = str(args.get("url") or "").strip()
     goal = str(args.get("goal") or "").strip()
     if not url or not goal:
